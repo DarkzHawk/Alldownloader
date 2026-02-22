@@ -1,0 +1,93 @@
+name: docker-ghcr
+
+on:
+  push:
+  workflow_dispatch:
+    inputs:
+      hitomi_version:
+        description: "Upstream Hitomi Downloader release tag (example: v4.2)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      DEFAULT_HITOMI_VERSION: v4.2
+      REF_NAME: ${{ github.ref_name }}
+      REF_TYPE: ${{ github.ref_type }}
+      INPUT_HITOMI_VERSION: ${{ github.event.inputs.hitomi_version || '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve image and upstream version
+        id: vars
+        shell: bash
+        run: |
+          set -euo pipefail
+          owner_lc="${GITHUB_REPOSITORY_OWNER,,}"
+          image="ghcr.io/${owner_lc}/hitomi-downloader"
+
+          version=""
+          if [[ -n "${INPUT_HITOMI_VERSION}" ]]; then
+            version="${INPUT_HITOMI_VERSION}"
+          elif [[ "${REF_TYPE}" == "tag" && "${REF_NAME}" =~ ^v[0-9] ]]; then
+            version="${REF_NAME}"
+          elif [[ -f ".hitomi-version" ]]; then
+            version="$(tr -d '\r\n' < .hitomi-version)"
+          else
+            version="${DEFAULT_HITOMI_VERSION}"
+          fi
+
+          if [[ -z "${version}" ]]; then
+            echo "Failed to resolve HITOMI_VERSION" >&2
+            exit 1
+          fi
+
+          echo "image=${image}" >> "$GITHUB_OUTPUT"
+          echo "hitomi_version=${version}" >> "$GITHUB_OUTPUT"
+          echo "Using upstream release: ${version}"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ steps.vars.outputs.image }}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha,prefix=sha-
+          labels: |
+            org.opencontainers.image.title=Hitomi Downloader (QNAP/Wine)
+            org.opencontainers.image.description=Wine/Xvfb container image for running Hitomi Downloader on Linux NAS hosts
+            org.opencontainers.image.vendor=${{ github.repository_owner }}
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            HITOMI_VERSION=${{ steps.vars.outputs.hitomi_version }}
