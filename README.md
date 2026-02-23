@@ -1,18 +1,5 @@
 
 
-[![GitHub release](https://img.shields.io/github/release/KurtBestor/Hitomi-Downloader.svg?logo=github)](https://github.com/KurtBestor/Hitomi-Downloader/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/KurtBestor/Hitomi-Downloader/latest/total.svg?logo=github)](https://github.com/KurtBestor/Hitomi-Downloader/releases/latest)
-[![GitHub downloads](https://img.shields.io/github/downloads/KurtBestor/Hitomi-Downloader/total.svg?logo=github)](https://github.com/KurtBestor/Hitomi-Downloader/releases)
-
-## Links
-- [Download](https://github.com/KurtBestor/Hitomi-Downloader/releases/latest)
-- [Issues](https://github.com/KurtBestor/Hitomi-Downloader/issues)
-- [Scripts & Plugins](https://github.com/KurtBestor/Hitomi-Downloader/wiki/Scripts-&-Plugins)
-- [Chrome Extension](https://github.com/KurtBestor/Hitomi-Downloader/wiki/Chrome-Extension)
-
-## Demo
-<img src="imgs/how_to_download.gif">
-
 ## Features
 - 🍰 Simple and clear user interface
 - 🚀 Download acceleration
@@ -30,7 +17,7 @@
 | Site | URL |
 | :--: | -- |
 | **4chan** | <https://4chan.org> |
-| **AfreecaTV** | <https://afreecatv.com> |
+| **SOOPTV** | <https://afreecatv.com> |
 | **ArtStation** | <https://artstation.com> |
 | **AsmHentai** | <https://asmhentai.com> |
 | **Avgle** | <https://avgle.com> |
